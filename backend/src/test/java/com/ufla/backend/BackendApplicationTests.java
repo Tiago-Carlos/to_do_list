@@ -1,10 +1,10 @@
-package com.ufla.todo_list;
+package com.ufla.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TodoListApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,17 +1,14 @@
-package com.ufla.todo_list.controller;
+package com.ufla.backend.controller;
 
-import com.ufla.todo_list.entity.Tarefa;
-import com.ufla.todo_list.service.impl.TarefaServiceImpl;
+import com.ufla.backend.entity.Tarefa;
+import com.ufla.backend.service.impl.TarefaServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tarefas")

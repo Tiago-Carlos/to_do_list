@@ -1,6 +1,6 @@
-package com.ufla.todo_list.service;
+package com.ufla.backend.service;
 
-import com.ufla.todo_list.entity.Tarefa;
+import com.ufla.backend.entity.Tarefa;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Pageable;

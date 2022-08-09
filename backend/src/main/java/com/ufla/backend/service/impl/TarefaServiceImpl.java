@@ -1,8 +1,8 @@
-package com.ufla.todo_list.service.impl;
+package com.ufla.backend.service.impl;
 
-import com.ufla.todo_list.entity.Tarefa;
-import com.ufla.todo_list.repository.TarefaRepository;
-import com.ufla.todo_list.service.TarefaService;
+import com.ufla.backend.entity.Tarefa;
+import com.ufla.backend.repository.TarefaRepository;
+import com.ufla.backend.service.TarefaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 

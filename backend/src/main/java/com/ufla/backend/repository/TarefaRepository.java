@@ -1,6 +1,6 @@
-package com.ufla.todo_list.repository;
+package com.ufla.backend.repository;
 
-import com.ufla.todo_list.entity.Tarefa;
+import com.ufla.backend.entity.Tarefa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
