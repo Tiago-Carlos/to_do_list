@@ -8,7 +8,9 @@ function App() {
   const [items, setItems] = useState([])
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  let page_size = 6;
+  const [tarefaSalvar, setTarefaSalvar] = useState({id: '', descricao: '', prazo: '', completa: false})
+  const [tarefaEditar, setTarefaEditar] = useState({id: '', descricao: '', prazo: ''})
+  let page_size = 9;
 
   useEffect(() => {
     axios.get(`http://localhost:8080/tarefas?page=0&size=${page_size}&sort=id`)
@@ -31,6 +33,12 @@ function App() {
       setCurrentPage(currentPage - 1)
     }
   }, [pageCount]);
+
+  useEffect(() => {
+    if (currentPage !== 0) {
+      setCurrentPage(currentPage - 1)
+    }
+  }, [tarefaSalvar]);
 
   const completeTarefa = async (tarefa) => {
     tarefa.completa = !tarefa.completa;
@@ -59,6 +67,24 @@ function App() {
     setItems(data.content)
   }
 
+  const saveTarefa = event => {
+    event.preventDefault();
+    console.log(tarefaSalvar)
+    axios.post(`http://localhost:8080/tarefas`, tarefaSalvar)
+      .then( res => {
+        return fetchTarefas();
+      });
+  }
+
+  const editTarefa = event => {
+    event.preventDefault();
+    axios.put(`http://localhost:8080/tarefas/${tarefaEditar.id}`, tarefaEditar)
+      .then( res => {
+        setTarefaEditar({id: '', descricao: '', prazo: ''});
+        return fetchTarefas();
+      });
+  }
+
   const handlePageClick = async (data) => {
     setCurrentPage(data.selected)
   }
@@ -66,33 +92,75 @@ function App() {
   return (
     <div className='container'>
       <div className='row m-2'>
-        <div className='card text-white bg-dark text-center'>
-          <div className='card-header'>
-            Adicionar nova tarefa
-          </div>
-          <div className='card-body'>
-            <div class="form-group">
-              <fieldset>
-                <input class="form-control text-center" id="readOnlyInput" type="text" placeholder="ID" readonly="" />
-              </fieldset>
+        <div className="col-sm">
+          <div className='card text-white bg-dark text-center'>
+            <div className='card-header'>
+              Adicionar nova tarefa
             </div>
+            <div className='card-body'>
+              <form onSubmit={saveTarefa}>
+                <div className="form-group">
+                  <fieldset>
+                    <input className="form-control text-center" id="readOnlyInput" type="text" placeholder="ID" readOnly={true} />
+                  </fieldset>
+                </div>
 
-            <div class="form-group">
-              <fieldset>
-                <label class="form-label" for="disabledInput">Descricao</label>
-                <input type="text" className="form-control text-center" placeholder="descricao" id="inputDefault" />
-              </fieldset>
+                <div className="form-group">
+                  <fieldset>
+                    <label className="form-label" htmlFor="disabledInput">Descricao</label>
+                    <input type="text" className="form-control text-center" placeholder="descricao" id="inputDefault" 
+                        onChange={event => setTarefaSalvar({id:tarefaSalvar.id, descricao:event.target.value, prazo:tarefaSalvar.prazo})}/>
+                  </fieldset>
+                </div>
+                <div className="form-group">
+                  <fieldset>
+                    <label className="form-label" htmlFor="disabledInput">Prazo</label>
+                    <input type="text" className="form-control text-center" placeholder="yyyy-MM-dd HH:mm" id="inputDefault" 
+                        onChange={event => setTarefaSalvar({id:tarefaSalvar.id, descricao:tarefaSalvar.descricao, prazo:event.target.value})}/>
+                    <small id="emailHelp" className="form-text text-muted">Não esqueça do espaço entre a data e a hora.</small>
+                  </fieldset>
+                </div>
+                <button type="submit" className="btn btn-success" >Adicionar Tarefa</button>
+              </form>
             </div>
-            <div class="form-group">
-              <fieldset>
-                <label class="form-label" for="disabledInput">Prazo</label>
-                <input type="text" className="form-control text-center" placeholder="dd-MM-yyyy HH:mm" id="inputDefault" />
-                <small id="emailHelp" class="form-text text-muted">Não esqueça do espaço entre a data e a hora.</small>
-              </fieldset>
-            </div>
-            <button type="submit" className="btn btn-success">Adicionar Tarefa</button>
           </div>
         </div>
+        <div className="col-sm">
+          <div className='card text-white bg-dark text-center'>
+            <div className='card-header'>
+              Editar Tarefa
+            </div>
+            <div className='card-body'>
+              <form onSubmit={editTarefa}>
+                <div className="form-group">
+                  <fieldset>
+                    <input className="form-control text-center" id="readOnlyInput" type="text" placeholder="ID" readOnly={true} value={tarefaEditar["id"]} />
+                  </fieldset>
+                </div>
+
+                <div className="form-group">
+                  <fieldset>
+                    <label className="form-label" htmlFor="disabledInput">Descricao</label>
+                    <input type="text" className="form-control text-center" placeholder="descricao" id="inputDefault" defaultValue={tarefaEditar["descricao"]}
+                        onChange={event => setTarefaEditar({id:tarefaEditar.id, descricao:event.target.value, prazo:tarefaEditar.prazo})}/>
+                  </fieldset>
+                </div>
+
+                <div className="form-group">
+                  <fieldset>
+                    <label className="form-label" htmlFor="disabledInput">Prazo</label>
+                    <input type="text" className="form-control text-center" placeholder="yyyy-MM-dd HH:mm" id="inputDefault" defaultValue={tarefaEditar["prazo"]}
+                        onChange={event => setTarefaEditar({id:tarefaEditar.id, descricao:tarefaEditar.descricao, prazo:event.target.value})}/>
+                    <small id="emailHelp" className="form-text text-muted">Não esqueça do espaço entre a data e a hora.</small>
+                  </fieldset>
+                </div>
+                <button type="submit" className="btn btn-success" onClick={() => console.log(tarefaEditar)}>Editar Tarefa</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='row m-2'>
         {items.map((item) => {
           let card_type = "card text-white bg-dark text-center"
           let button_text = "completar"
@@ -113,7 +181,7 @@ function App() {
                 </div>
                 <div className='card-body'>
                   <h5 className="card-title text-center h2">{item.descricao}</h5>
-                  <button type="button" className="btn btn-secondary" onClick={() => console.log(currentPage)}>Editar</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setTarefaEditar(item)}>Editar</button>
                   <button type="button" className="btn btn-danger" onClick={() => deleteTarefa(item)}>Deletar</button>
                   <button type="button" className={button_type} onClick={() => completeTarefa(item)}>{button_text}</button>
                 </div>

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -19,11 +20,13 @@ public class Tarefa {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(name = "descricao")
     private String descricao;
 
+    @NotNull
     @Column(name = "prazo")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="dd-MM-yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm")
     private Date prazo;
 
     @Column(name = "completa")
