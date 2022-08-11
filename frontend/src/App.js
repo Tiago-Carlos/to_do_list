@@ -10,6 +10,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [tarefaSalvar, setTarefaSalvar] = useState({id: '', descricao: '', prazo: '', completa: false})
   const [tarefaEditar, setTarefaEditar] = useState({id: '', descricao: '', prazo: ''})
+  const [inputInvalido, setInputInvalido] = useState({saveInvalido: "", saveMsg: "", editInvalido: "", editMsg: ""})
   let page_size = 9;
 
   useEffect(() => {
@@ -69,20 +70,38 @@ function App() {
 
   const saveTarefa = event => {
     event.preventDefault();
-    console.log(tarefaSalvar)
-    axios.post(`http://localhost:8080/tarefas`, tarefaSalvar)
-      .then( res => {
-        return fetchTarefas();
-      });
+    if (tarefaSalvar.descricao === "" || tarefaSalvar.prazo === "") {
+      setInputInvalido({saveInvalido: "is-invalid", saveMsg: "Somente o campo ID deve ficar vazio"})
+      console.log(inputInvalido)
+    }
+    else {
+      axios.post(`http://localhost:8080/tarefas`, tarefaSalvar)
+        .then( res => {
+          setInputInvalido({saveInvalido: "", saveMsg: ""})
+          return fetchTarefas();
+        })
+        .catch (err => {
+          setInputInvalido({saveInvalido: "is-invalid", saveMsg: err.message})
+        });
+    }
   }
 
   const editTarefa = event => {
     event.preventDefault();
-    axios.put(`http://localhost:8080/tarefas/${tarefaEditar.id}`, tarefaEditar)
-      .then( res => {
-        setTarefaEditar({id: '', descricao: '', prazo: ''});
-        return fetchTarefas();
-      });
+    if (tarefaEditar.descricao === "" || tarefaEditar.prazo === "") {
+      setInputInvalido({editInvalido: "is-invalid", editMsg: "Somente o campo ID deve ficar vazio"})
+    }
+    else {
+      axios.put(`http://localhost:8080/tarefas/${tarefaEditar.id}`, tarefaEditar)
+        .then( res => {
+          setTarefaEditar({id: '', descricao: '', prazo: ''});
+          setInputInvalido({editInvalido: "", editMsg: ""})
+          return fetchTarefas();
+        })
+        .catch (err => {
+          setInputInvalido({editInvalido: "is-invalid", editMsg: err.message})
+        });
+    }
   }
 
   const handlePageClick = async (data) => {
@@ -101,21 +120,22 @@ function App() {
               <form onSubmit={saveTarefa}>
                 <div className="form-group">
                   <fieldset>
-                    <input className="form-control text-center" id="readOnlyInput" type="text" placeholder="ID" readOnly={true} />
+                    <input className="form-control text-center" id="readOnlyInput" type="text" placeholder="ID (Será fornecido automaticamente)" readOnly={true} />
                   </fieldset>
                 </div>
 
                 <div className="form-group">
                   <fieldset>
                     <label className="form-label" htmlFor="disabledInput">Descricao</label>
-                    <input type="text" className="form-control text-center" placeholder="descricao" id="inputDefault" 
+                    <input type="text" className={`form-control text-center ${inputInvalido.saveInvalido}`} placeholder="descricao" id="inputDefault"
                         onChange={event => setTarefaSalvar({id:tarefaSalvar.id, descricao:event.target.value, prazo:tarefaSalvar.prazo})}/>
+                    <div className="invalid-feedback">{inputInvalido.saveMsg}</div>
                   </fieldset>
                 </div>
                 <div className="form-group">
                   <fieldset>
                     <label className="form-label" htmlFor="disabledInput">Prazo</label>
-                    <input type="text" className="form-control text-center" placeholder="yyyy-MM-dd HH:mm" id="inputDefault" 
+                    <input type="text" className={`form-control text-center ${inputInvalido.saveInvalido}`} placeholder="yyyy-MM-dd HH:mm" id="inputDefault" 
                         onChange={event => setTarefaSalvar({id:tarefaSalvar.id, descricao:tarefaSalvar.descricao, prazo:event.target.value})}/>
                     <small id="emailHelp" className="form-text text-muted">Não esqueça do espaço entre a data e a hora.</small>
                   </fieldset>
@@ -141,15 +161,16 @@ function App() {
                 <div className="form-group">
                   <fieldset>
                     <label className="form-label" htmlFor="disabledInput">Descricao</label>
-                    <input type="text" className="form-control text-center" placeholder="descricao" id="inputDefault" defaultValue={tarefaEditar["descricao"]}
+                    <input type="text" className={`form-control text-center ${inputInvalido.editInvalido}`} placeholder="descricao" id="inputDefault" value={tarefaEditar["descricao"]}
                         onChange={event => setTarefaEditar({id:tarefaEditar.id, descricao:event.target.value, prazo:tarefaEditar.prazo})}/>
+                      <div className="invalid-feedback">{inputInvalido.editMsg}</div>
                   </fieldset>
                 </div>
 
                 <div className="form-group">
                   <fieldset>
                     <label className="form-label" htmlFor="disabledInput">Prazo</label>
-                    <input type="text" className="form-control text-center" placeholder="yyyy-MM-dd HH:mm" id="inputDefault" defaultValue={tarefaEditar["prazo"]}
+                    <input type="text" className={`form-control text-center ${inputInvalido.editInvalido}`} placeholder="yyyy-MM-dd HH:mm" id="inputDefault" value={tarefaEditar["prazo"]}
                         onChange={event => setTarefaEditar({id:tarefaEditar.id, descricao:tarefaEditar.descricao, prazo:event.target.value})}/>
                     <small id="emailHelp" className="form-text text-muted">Não esqueça do espaço entre a data e a hora.</small>
                   </fieldset>
@@ -175,12 +196,14 @@ function App() {
           const hora = new Date(item.prazo).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           return (
             <div key={item.id} className='col-sm-6 col-md-4 v my-2'>
-              <div className={card_type} style={{ minHeight: 225 }}>
+              <div className={card_type}>
                 <div className='card-header'>
                   <p className='card-text'>{data} - {hora}</p>
                 </div>
                 <div className='card-body'>
-                  <h5 className="card-title text-center h2">{item.descricao}</h5>
+                  <h5 className="card-title text-center">{item.descricao}</h5>
+                </div>
+                <div className='card-footer'>
                   <button type="button" className="btn btn-secondary" onClick={() => setTarefaEditar(item)}>Editar</button>
                   <button type="button" className="btn btn-danger" onClick={() => deleteTarefa(item)}>Deletar</button>
                   <button type="button" className={button_type} onClick={() => completeTarefa(item)}>{button_text}</button>
